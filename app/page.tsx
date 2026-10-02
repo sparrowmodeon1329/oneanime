@@ -35,7 +35,7 @@ const animeList: Anime[] = [
         title: 'Episode 1: Asta and Yuno (தமிழ்)',
         duration: '23m',
         // Intha edathula unoda Archive.org direct .mp4 streaming link-ah podu macha
-        streamUrl: 'https://archive.org/download/black-clover-s-1-ep-01/black-clover-s-1-ep-01.mp4',
+        streamUrl: 'https://archive.org/details/black-clover-s-1-ep-01',
       },
       {
         id: 2,
