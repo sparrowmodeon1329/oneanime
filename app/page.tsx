@@ -1,409 +1,216 @@
 'use client';
 
-import { useState, useRef, useEffect, useCallback } from 'react';
-import { 
-  Play, 
-  Pause,
-  Sparkles, 
-  Film, 
-  ExternalLink, 
-  Info, 
-  CheckCircle2, 
-  Images, 
-  Search, 
-  RotateCcw, 
-  RotateCw, 
-  FastForward 
-} from 'lucide-react';
+import React, { useState } from 'react';
 
-export interface Episode {
+interface Episode {
   id: number;
   title: string;
+  duration: string;
   streamUrl: string;
 }
 
-export interface AnimeItem {
+interface Anime {
   id: string;
   title: string;
-  posters: string[]; 
-  language: string;
-  totalEpisodes: number;
-  description: string;
+  originalTitle: string;
+  genre: string[];
+  rating: string;
+  synopsis: string;
+  poster: string;
   episodes: Episode[];
 }
 
-const MY_ANIME_COLLECTION: AnimeItem[] = [
+const animeList: Anime[] = [
   {
-    id: 'jujutsu-kaisen',
-    title: 'Jujutsu Kaisen (Tamil Dub)',
-    posters: [
-      '/poster1.jpg',
-    ],
-    language: 'Tamil Dubbed',
-    totalEpisodes: 2,
-    description: 'Ryomen Sukuna curse finger storyline with high quality Tamil audio stream.',
+    id: 'black-clover',
+    title: 'Black Clover (Tamil Dub)',
+    originalTitle: 'ブラッククローバー',
+    genre: ['Action', 'Magic', 'Fantasy', 'Shounen'],
+    rating: '8.3/10',
+    synopsis: 'Asta and Yuno were abandoned at the same church on the same day. While Yuno possesses exceptional magical powers, Asta was born completely without magic. Follow their journey to become the Wizard King!',
+    poster: '/poster1.jpg',
     episodes: [
       {
         id: 1,
-        title: 'Episode 1: Ryomen Sukuna',
-        streamUrl: '/anime1.mp4',
+        title: 'Episode 1: Asta and Yuno (தமிழ்)',
+        duration: '23m',
+        streamUrl: 'https://drive.google.com/uc?export=download&id=19Hq3M9_Iy7EJ3aIUGn3loTjpK6ZqXNpK',
       },
       {
         id: 2,
-        title: 'Episode 2: For Myself',
-        streamUrl: '/anime1.mp4',
+        title: 'Episode 2: A Boys Vow',
+        duration: '23m',
+        streamUrl: '',
       },
     ],
   },
   {
-    id: 'naruto-shippuden',
-    title: 'Naruto Shippuden (Tamil Dub)',
-    posters: [
-      '/poster2.jpg',
-    ],
-    language: 'Tamil Dubbed',
-    totalEpisodes: 1,
-    description: 'Naruto returns after intensive training to protect the Hidden Leaf Village.',
+    id: 'jjk',
+    title: 'Jujutsu Kaisen (Tamil Dub)',
+    originalTitle: '呪術廻戦',
+    genre: ['Supernatural', 'Action', 'Dark Fantasy'],
+    rating: '8.6/10',
+    synopsis: 'Yuji Itadori swallows a cursed talisman - the finger of Ryomen Sukuna - and becomes cursed himself to enter the world of Jujutsu sorcerers.',
+    poster: '/poster2.jpg',
     episodes: [
       {
         id: 1,
-        title: 'Episode 1: Homecoming',
-        streamUrl: '/anime1.mp4',
+        title: 'Episode 1: Ryomen Sukuna',
+        duration: '24m',
+        streamUrl: '',
       },
     ],
   },
 ];
 
 export default function Home() {
-  const [selectedAnime, setSelectedAnime] = useState<AnimeItem>(MY_ANIME_COLLECTION[0]);
-  const [selectedPosterIndex, setSelectedPosterIndex] = useState<number>(0);
-  const [currentEpisode, setCurrentEpisode] = useState<Episode>(
-    MY_ANIME_COLLECTION[0]?.episodes[0] || { id: 1, title: 'No Episode', streamUrl: '' }
-  );
+  const [selectedAnime, setSelectedAnime] = useState<Anime>(animeList[0]);
+  const [currentEpisode, setCurrentEpisode] = useState<Episode>(animeList[0].episodes[0]);
 
-  const [searchQuery, setSearchQuery] = useState('');
-  const [isPlaying, setIsPlaying] = useState(true);
-  const [showControls, setShowControls] = useState(false);
-
-  const videoRef = useRef<HTMLVideoElement | null>(null);
-  const hideTimerRef = useRef<NodeJS.Timeout | null>(null);
-
-  // 2.5 seconds auto-hide logic for mobile touch & laptop mouse move
-  const triggerControls = useCallback(() => {
-    setShowControls(true);
-    if (hideTimerRef.current) {
-      clearTimeout(hideTimerRef.current);
-    }
-    hideTimerRef.current = setTimeout(() => {
-      setShowControls(false);
-    }, 2500);
-  }, []);
-
-  useEffect(() => {
-    return () => {
-      if (hideTimerRef.current) {
-        clearTimeout(hideTimerRef.current);
-      }
-    };
-  }, []);
-
-  const handleAnimeSelect = (anime: AnimeItem) => {
+  const handleSelectAnime = (anime: Anime) => {
     setSelectedAnime(anime);
-    setSelectedPosterIndex(0);
-    if (anime.episodes && anime.episodes.length > 0) {
-      setCurrentEpisode(anime.episodes[0]);
-      setIsPlaying(true);
-    }
+    setCurrentEpisode(anime.episodes[0]);
   };
-
-  const handleEpisodeSelect = (ep: Episode) => {
-    setCurrentEpisode(ep);
-    setIsPlaying(true);
-  };
-
-  const handleSkip = (seconds: number) => {
-    triggerControls();
-    if (videoRef.current) {
-      videoRef.current.currentTime += seconds;
-    }
-  };
-
-  const togglePlayPause = () => {
-    triggerControls();
-    if (videoRef.current) {
-      if (videoRef.current.paused) {
-        videoRef.current.play();
-        setIsPlaying(true);
-      } else {
-        videoRef.current.pause();
-        setIsPlaying(false);
-      }
-    }
-  };
-
-  const handleVideoEnded = () => {
-    const currentIndex = selectedAnime.episodes.findIndex((ep) => ep.id === currentEpisode.id);
-    if (currentIndex !== -1 && currentIndex < selectedAnime.episodes.length - 1) {
-      setCurrentEpisode(selectedAnime.episodes[currentIndex + 1]);
-      setIsPlaying(true);
-    }
-  };
-
-  const filteredCollection = MY_ANIME_COLLECTION.filter((anime) =>
-    anime.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    anime.language.toLowerCase().includes(searchQuery.toLowerCase())
-  );
 
   return (
-    <main className="min-h-screen bg-zinc-950 text-zinc-100 pb-24 selection:bg-red-600 selection:text-white">
-      {/* Top Navbar */}
-      <header className="sticky top-0 z-50 flex items-center justify-between border-b border-zinc-800/80 bg-zinc-950/90 px-4 py-3.5 backdrop-blur-md sm:px-8">
+    <main className="min-h-screen bg-neutral-950 text-neutral-100 flex flex-col">
+      {/* Top Navigation */}
+      <header className="sticky top-0 z-50 flex items-center justify-between px-6 py-4 bg-neutral-900/90 backdrop-blur-md border-b border-neutral-800">
         <div className="flex items-center gap-3">
-          <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-red-500 to-red-700 font-black text-white shadow-lg shadow-red-600/30">
-            1A
-          </span>
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-500 to-rose-600 flex items-center justify-center font-black text-xl shadow-lg shadow-amber-500/20">
+            OA
+          </div>
           <div>
-            <h1 className="text-xl font-black tracking-wider text-white">
-              ONE<span className="text-red-500">ANIME</span>
-            </h1>
-            <p className="text-[10px] font-medium tracking-wide text-zinc-400">
-              TAMIL ANIME STREAMING HUB
-            </p>
+            <h1 className="text-xl font-bold tracking-tight text-white">OneAnime</h1>
+            <p className="text-xs text-neutral-400">Tamil Anime Streaming Hub</p>
           </div>
         </div>
-
-        <div className="flex items-center gap-2">
-          <span className="flex items-center gap-1.5 rounded-full border border-red-500/30 bg-red-500/10 px-3 py-1 text-xs font-semibold text-red-400">
-            <Sparkles className="h-3.5 w-3.5" /> Multi-Poster & Tamil Audio
-          </span>
+        <div className="px-3 py-1 text-xs font-semibold uppercase tracking-wider rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
+          Live PWA
         </div>
       </header>
 
-      <div className="mx-auto max-w-6xl px-4 pt-6 sm:px-6">
-        {/* Cinema Video Frame */}
-        <section className="mb-10 overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-950 shadow-2xl">
-          <div 
-            onClick={triggerControls}
-            onMouseMove={triggerControls}
-            onTouchStart={triggerControls}
-            className="relative aspect-video w-full bg-black cursor-pointer select-none"
-          >
+      <div className="flex-1 max-w-7xl w-full mx-auto p-4 md:p-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Main Video Player & Details */}
+        <section className="lg:col-span-2 flex flex-col gap-4">
+          <div className="relative aspect-video w-full rounded-2xl overflow-hidden bg-black border border-neutral-800 shadow-2xl">
             {currentEpisode.streamUrl ? (
-              <>
-                <video
-                  ref={videoRef}
-                  key={currentEpisode.streamUrl}
-                  src={currentEpisode.streamUrl}
-                  controls
-                  autoPlay
-                  playsInline
-                  onPlay={() => setIsPlaying(true)}
-                  onPause={() => setIsPlaying(false)}
-                  onEnded={handleVideoEnded}
-                  className="h-full w-full object-contain focus:outline-none"
-                >
-                  Your browser does not support HTML5 video streaming.
-                </video>
-
-                {/* Mobile & Laptop Auto-Hide Floating Controls */}
-                <div 
-                  className={`pointer-events-none absolute inset-0 flex items-center justify-center gap-6 transition-opacity duration-300 ${
-                    showControls ? 'opacity-100' : 'opacity-0'
-                  }`}
-                >
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleSkip(-10);
-                    }}
-                    title="Rewind 10 seconds"
-                    className="pointer-events-auto flex h-12 w-12 items-center justify-center rounded-full bg-black/80 text-white shadow-lg transition hover:scale-110 hover:bg-red-600 active:scale-95"
-                  >
-                    <RotateCcw className="h-5 w-5" />
-                  </button>
-
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      togglePlayPause();
-                    }}
-                    title={isPlaying ? 'Pause' : 'Play'}
-                    className="pointer-events-auto flex h-14 w-14 items-center justify-center rounded-full bg-red-600 text-white shadow-2xl shadow-red-600/50 transition hover:scale-110 active:scale-95"
-                  >
-                    {isPlaying ? <Pause className="h-6 w-6 fill-white" /> : <Play className="h-6 w-6 fill-white ml-0.5" />}
-                  </button>
-
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleSkip(10);
-                    }}
-                    title="Forward 10 seconds"
-                    className="pointer-events-auto flex h-12 w-12 items-center justify-center rounded-full bg-black/80 text-white shadow-lg transition hover:scale-110 hover:bg-red-600 active:scale-95"
-                  >
-                    <RotateCw className="h-5 w-5" />
-                  </button>
-                </div>
-              </>
+              <video
+                key={currentEpisode.streamUrl}
+                controls
+                autoPlay
+                playsInline
+                className="w-full h-full object-contain"
+                src={currentEpisode.streamUrl}
+              >
+                Your browser does not support HTML5 video.
+              </video>
             ) : (
-              <div className="flex h-full w-full flex-col items-center justify-center gap-3 p-6 text-center">
-                <Info className="h-10 w-10 text-zinc-600" />
-                <p className="text-sm font-medium text-zinc-400">
-                  No active video stream URL configured for this episode.
-                </p>
+              <div className="w-full h-full flex flex-col items-center justify-center text-center p-6 text-neutral-500">
+                <span className="text-4xl mb-2">🎬</span>
+                <p className="font-medium text-neutral-300">No active stream URL</p>
+                <p className="text-sm">Video link upload pannina play aagum</p>
               </div>
             )}
           </div>
 
-          {/* Episode Info */}
-          <div className="border-t border-zinc-800/80 bg-zinc-900/60 p-5 sm:p-6">
-            <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="bg-neutral-900/60 rounded-2xl p-5 border border-neutral-800 flex flex-col gap-3">
+            <div className="flex flex-wrap items-center justify-between gap-2">
               <div>
-                <div className="flex items-center gap-2">
-                  <span className="rounded bg-red-600 px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wider text-white">
-                    Now Playing
-                  </span>
-                  <span className="rounded border border-zinc-700 bg-zinc-800 px-2 py-0.5 text-[11px] font-medium text-zinc-300">
-                    {selectedAnime.language}
-                  </span>
-                </div>
-                <h2 className="mt-2 text-lg font-bold text-white sm:text-2xl">
-                  {selectedAnime.title} — {currentEpisode.title}
-                </h2>
+                <span className="text-xs font-semibold px-2 py-0.5 rounded bg-rose-500/20 text-rose-400 border border-rose-500/30 uppercase mr-2">
+                  Now Playing
+                </span>
+                <span className="text-xs font-semibold px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                  {selectedAnime.title}
+                </span>
               </div>
-
-              {currentEpisode.streamUrl && (
-                <a
-                  href={currentEpisode.streamUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-1.5 rounded-lg border border-zinc-700 bg-zinc-800/80 px-3 py-1.5 text-xs font-semibold text-zinc-300 transition hover:bg-zinc-700 hover:text-white"
-                >
-                  Direct Stream Link <ExternalLink className="h-3.5 w-3.5" />
-                </a>
-              )}
+              <span className="text-xs font-medium text-neutral-400">Rating: ⭐ {selectedAnime.rating}</span>
             </div>
 
-            <p className="mt-3 text-xs leading-relaxed text-zinc-400 sm:text-sm">
-              {selectedAnime.description}
+            <h2 className="text-lg md:text-xl font-bold text-white">
+              {currentEpisode.title}
+            </h2>
+
+            <p className="text-sm text-neutral-400 leading-relaxed">
+              {selectedAnime.synopsis}
             </p>
 
-            {/* Poster Gallery Selector */}
-            <div className="mt-5 border-t border-zinc-800/80 pt-4">
-              <span className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-zinc-400">
-                <Images className="h-3.5 w-3.5 text-red-500" /> Anime Posters ({selectedAnime.posters.length} Available):
-              </span>
-              <div className="mt-2.5 flex items-center gap-3">
-                {selectedAnime.posters.map((imgUrl, idx) => (
+            <div className="flex flex-wrap gap-2 pt-2 border-t border-neutral-800/80">
+              {selectedAnime.genre.map((g) => (
+                <span key={g} className="text-xs px-2.5 py-1 rounded-lg bg-neutral-800 text-neutral-300 border border-neutral-700/50">
+                  {g}
+                </span>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Sidebar: Episodes & Anime Selector */}
+        <aside className="flex flex-col gap-6">
+          {/* Episode List */}
+          <div className="bg-neutral-900/60 rounded-2xl p-4 border border-neutral-800">
+            <h3 className="font-bold text-neutral-200 text-base mb-3 flex items-center justify-between">
+              <span>Episodes</span>
+              <span className="text-xs font-normal text-neutral-400">{selectedAnime.episodes.length} Available</span>
+            </h3>
+            <div className="flex flex-col gap-2">
+              {selectedAnime.episodes.map((ep) => {
+                const isActive = ep.id === currentEpisode.id;
+                return (
                   <button
-                    key={idx}
-                    onClick={() => setSelectedPosterIndex(idx)}
-                    className={`relative h-16 w-12 overflow-hidden rounded-lg border-2 transition-all ${
-                      selectedPosterIndex === idx
-                        ? 'border-red-500 ring-2 ring-red-500/50 scale-105'
-                        : 'border-zinc-700 opacity-60 hover:opacity-100'
+                    key={ep.id}
+                    onClick={() => setCurrentEpisode(ep)}
+                    className={`w-full text-left p-3 rounded-xl transition flex items-center justify-between border ${
+                      isActive
+                        ? 'bg-amber-500/10 border-amber-500/40 text-amber-300'
+                        : 'bg-neutral-950/60 border-neutral-800/80 text-neutral-300 hover:bg-neutral-800/60'
                     }`}
                   >
-                    <img src={imgUrl} alt="Poster Thumbnail" className="h-full w-full object-cover" />
+                    <div className="flex flex-col">
+                      <span className="text-sm font-semibold">{ep.title}</span>
+                      <span className="text-xs text-neutral-500">{ep.duration}</span>
+                    </div>
+                    {isActive ? (
+                      <span className="text-xs font-bold px-2 py-0.5 rounded bg-amber-500 text-neutral-950">Playing</span>
+                    ) : (
+                      <span className="text-xs text-neutral-500">Play ▶</span>
+                    )}
                   </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Episode Selectors */}
-            <div className="mt-5 border-t border-zinc-800/80 pt-4">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-bold uppercase tracking-wider text-zinc-400">
-                  Choose Episode:
-                </span>
-                <span className="flex items-center gap-1 text-[11px] text-zinc-500">
-                  <FastForward className="h-3 w-3 text-red-500" /> Auto-play Next Enabled
-                </span>
-              </div>
-              <div className="mt-3 flex flex-wrap gap-2.5">
-                {selectedAnime.episodes.map((ep) => {
-                  const isEpPlaying = currentEpisode.id === ep.id;
-                  return (
-                    <button
-                      key={ep.id}
-                      onClick={() => handleEpisodeSelect(ep)}
-                      className={`flex items-center gap-2 rounded-xl px-4 py-2.5 text-xs font-bold transition ${
-                        isEpPlaying
-                          ? 'bg-red-600 text-white shadow-lg shadow-red-600/30 ring-2 ring-red-400'
-                          : 'border border-zinc-800 bg-zinc-900 text-zinc-300 hover:border-zinc-700 hover:bg-zinc-800'
-                      }`}
-                    >
-                      {isEpPlaying && <CheckCircle2 className="h-3.5 w-3.5" />}
-                      Episode {ep.id}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Custom Collection Grid with Instant Search */}
-        <section>
-          <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
-            <h3 className="flex items-center gap-2 text-lg font-bold text-white sm:text-xl">
-              <Film className="h-5 w-5 text-red-500" /> Your Anime Library
-            </h3>
-            
-            <div className="relative w-full max-w-xs">
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search anime or dub..."
-                className="w-full rounded-xl border border-zinc-800 bg-zinc-900/80 px-3 py-2 pl-9 text-xs text-white placeholder-zinc-500 focus:border-red-500 focus:outline-none"
-              />
-              <Search className="absolute left-3 top-2.5 h-3.5 w-3.5 text-zinc-500" />
+                );
+              })}
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
-            {filteredCollection.map((anime) => {
-              const isSelected = selectedAnime.id === anime.id;
-              const activePoster = isSelected ? anime.posters[selectedPosterIndex] || anime.posters[0] : anime.posters[0];
-
-              return (
-                <div
-                  key={anime.id}
-                  onClick={() => handleAnimeSelect(anime)}
-                  className={`group relative cursor-pointer overflow-hidden rounded-2xl border transition-all duration-300 ${
-                    isSelected
-                      ? 'border-red-500 bg-zinc-900 shadow-xl shadow-red-500/10 ring-2 ring-red-500/40'
-                      : 'border-zinc-800 bg-zinc-900/40 hover:border-zinc-700 hover:bg-zinc-900/80'
-                  }`}
-                >
-                  <div className="relative aspect-[3/4] w-full overflow-hidden bg-zinc-900">
-                    <img
-                      src={activePoster}
-                      alt={anime.title}
-                      className="h-full w-full object-cover transition duration-300 group-hover:scale-105"
-                      loading="lazy"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent flex items-end p-3.5">
-                      <span className="flex items-center gap-1.5 rounded-lg bg-red-600 px-3 py-1 text-xs font-bold text-white shadow-md">
-                        <Play className="h-3.5 w-3.5 fill-white" /> Watch
-                      </span>
+          {/* Anime Switcher */}
+          <div className="bg-neutral-900/60 rounded-2xl p-4 border border-neutral-800">
+            <h3 className="font-bold text-neutral-200 text-base mb-3">All Anime Series</h3>
+            <div className="flex flex-col gap-3">
+              {animeList.map((anime) => {
+                const isCurrent = anime.id === selectedAnime.id;
+                return (
+                  <button
+                    key={anime.id}
+                    onClick={() => handleSelectAnime(anime)}
+                    className={`w-full p-2 rounded-xl transition flex items-center gap-3 border text-left ${
+                      isCurrent
+                        ? 'bg-rose-500/10 border-rose-500/40 text-white'
+                        : 'bg-neutral-950/50 border-neutral-800 text-neutral-400 hover:bg-neutral-800/50'
+                    }`}
+                  >
+                    <div className="w-12 h-16 rounded-lg bg-neutral-800 overflow-hidden flex-shrink-0 border border-neutral-700">
+                      <img src={anime.poster} alt={anime.title} className="w-full h-full object-cover" />
                     </div>
-                  </div>
-                  <div className="p-3.5">
-                    <h4 className="line-clamp-1 text-sm font-bold text-zinc-100 group-hover:text-red-400">
-                      {anime.title}
-                    </h4>
-                    <div className="mt-1 flex items-center justify-between text-[11px] text-zinc-400">
-                      <span>{anime.language}</span>
-                      <span>{anime.posters.length} Posters</span>
+                    <div className="flex flex-col overflow-hidden">
+                      <span className="text-sm font-semibold truncate text-neutral-200">{anime.title}</span>
+                      <span className="text-xs text-neutral-500">{anime.originalTitle}</span>
+                      <span className="text-xs text-amber-400 mt-1">⭐ {anime.rating}</span>
                     </div>
-                  </div>
-                </div>
-              );
-            })}
+                  </button>
+                );
+              })}
+            </div>
           </div>
-        </section>
+        </aside>
       </div>
     </main>
   );
