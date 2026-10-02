@@ -34,7 +34,7 @@ const animeList: Anime[] = [
         id: 1,
         title: 'Episode 1: Asta and Yuno (தமிழ்)',
         duration: '23m',
-        // Intha edathula antha Archive.org direct download link-ah podu macha (e.g. https://archive.org/download/black-clover-s-1-ep-01/filename.mp4)
+        // Intha edathula unoda Archive.org direct .mp4 streaming link-ah podu macha
         streamUrl: 'https://archive.org/download/black-clover-s-1-ep-01/black-clover-s-1-ep-01.mp4',
       },
       {
@@ -111,7 +111,6 @@ export default function Home() {
               <div className="w-full h-full flex flex-col items-center justify-center text-center p-6 text-neutral-500">
                 <span className="text-4xl mb-2">🎬</span>
                 <p className="font-medium text-neutral-300">No active stream URL</p>
-                <p className="text-sm">Video link upload pannina play aagum</p>
               </div>
             )}
           </div>
