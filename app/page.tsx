@@ -75,13 +75,13 @@ export default function Home() {
   return (
     <main className="min-h-screen bg-neutral-950 text-neutral-100 flex flex-col">
       {/* Top Navigation */}
-      <header className="sticky top-0 z-50 flex items-center justify-between px-6 py-4 bg-neutral-900/90 backdrop-blur-md border-b border-neutral-800">
+      <header className="sticky top-0 z-50 flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 bg-neutral-900/90 backdrop-blur-md border-b border-neutral-800">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-500 to-rose-600 flex items-center justify-center font-black text-xl shadow-lg shadow-amber-500/20">
             OA
           </div>
           <div>
-            <h1 className="text-xl font-bold tracking-tight text-white">OneAnime</h1>
+            <h1 className="text-lg sm:text-xl font-bold tracking-tight text-white">OneAnime</h1>
             <p className="text-xs text-neutral-400">Tamil Anime Streaming Hub</p>
           </div>
         </div>
@@ -90,15 +90,15 @@ export default function Home() {
         </div>
       </header>
 
-      <div className="flex-1 max-w-7xl w-full mx-auto p-4 md:p-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="flex-1 max-w-7xl w-full mx-auto p-3 sm:p-6 grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
         {/* Main Video Player & Details */}
         <section className="lg:col-span-2 flex flex-col gap-4">
-          <div className="relative aspect-video w-full rounded-2xl overflow-hidden bg-black border border-neutral-800 shadow-2xl">
+          <div className="relative w-full aspect-video rounded-2xl overflow-hidden bg-black border border-neutral-800 shadow-2xl flex items-center justify-center">
             {currentEpisode.streamUrl ? (
               <iframe
                 key={currentEpisode.streamUrl}
                 src={currentEpisode.streamUrl}
-                className="w-full h-full border-0"
+                className="absolute inset-0 w-full h-full border-0"
                 allow="autoplay; fullscreen"
                 allowFullScreen
               />
@@ -111,7 +111,7 @@ export default function Home() {
             )}
           </div>
 
-          <div className="bg-neutral-900/60 rounded-2xl p-5 border border-neutral-800 flex flex-col gap-3">
+          <div className="bg-neutral-900/60 rounded-2xl p-4 sm:p-5 border border-neutral-800 flex flex-col gap-3">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <div>
                 <span className="text-xs font-semibold px-2 py-0.5 rounded bg-rose-500/20 text-rose-400 border border-rose-500/30 uppercase mr-2">
@@ -124,7 +124,7 @@ export default function Home() {
               <span className="text-xs font-medium text-neutral-400">Rating: ⭐ {selectedAnime.rating}</span>
             </div>
 
-            <h2 className="text-lg md:text-xl font-bold text-white">
+            <h2 className="text-base sm:text-xl font-bold text-white">
               {currentEpisode.title}
             </h2>
 
