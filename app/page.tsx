@@ -7,7 +7,6 @@ interface Episode {
   title: string;
   duration: string;
   streamUrl: string;
-  embedUrl: string;
 }
 
 interface Anime {
@@ -35,15 +34,14 @@ const animeList: Anime[] = [
         id: 1,
         title: 'Episode 1: Asta and Yuno (தமிழ்)',
         duration: '23m',
-        streamUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4', // Mobile touch-friendly direct stream fallback for testing
-        embedUrl: 'https://drive.google.com/file/d/19Hq3M9_Iy7EJ3aIUGn3loTjpK6ZqXNpK/preview',
+        // Google Drive direct download link to ensure mobile browser native HTML5 video player support
+        streamUrl: 'https://drive.google.com/uc?export=download&id=19Hq3M9_Iy7EJ3aIUGn3loTjpK6ZqXNpK',
       },
       {
         id: 2,
         title: 'Episode 2: A Boys Vow',
         duration: '23m',
         streamUrl: '',
-        embedUrl: '',
       },
     ],
   },
@@ -61,7 +59,6 @@ const animeList: Anime[] = [
         title: 'Episode 1: Ryomen Sukuna',
         duration: '24m',
         streamUrl: '',
-        embedUrl: '',
       },
     ],
   },
@@ -98,31 +95,18 @@ export default function Home() {
       <div className="flex-1 max-w-7xl w-full mx-auto p-3 sm:p-6 grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
         {/* Main Video Player & Details */}
         <section className="lg:col-span-2 flex flex-col gap-4">
-          <div className="relative w-full aspect-video rounded-2xl overflow-hidden bg-black border border-neutral-800 shadow-2xl flex items-center justify-center touch-manipulation">
-            {currentEpisode.streamUrl || currentEpisode.embedUrl ? (
-              <div className="absolute inset-0 w-full h-full">
-                {/* Mobile & Touch Friendly Native Video or Optimized Embed */}
-                {currentEpisode.streamUrl ? (
-                  <video
-                    key={currentEpisode.streamUrl}
-                    controls
-                    playsInline
-                    preload="metadata"
-                    className="w-full h-full object-contain bg-black"
-                    src={currentEpisode.streamUrl}
-                  >
-                    Your browser does not support HTML5 video.
-                  </video>
-                ) : (
-                  <iframe
-                    key={currentEpisode.embedUrl}
-                    src={currentEpisode.embedUrl}
-                    className="w-full h-full border-0 pointer-events-auto"
-                    allow="autoplay; fullscreen; picture-in-picture"
-                    allowFullScreen
-                  />
-                )}
-              </div>
+          <div className="relative w-full aspect-video rounded-2xl overflow-hidden bg-black border border-neutral-800 shadow-2xl flex items-center justify-center">
+            {currentEpisode.streamUrl ? (
+              <video
+                key={currentEpisode.streamUrl}
+                controls
+                playsInline
+                preload="metadata"
+                className="w-full h-full object-contain bg-black"
+                src={currentEpisode.streamUrl}
+              >
+                Your browser does not support HTML5 video.
+              </video>
             ) : (
               <div className="w-full h-full flex flex-col items-center justify-center text-center p-6 text-neutral-500">
                 <span className="text-4xl mb-2">🎬</span>
