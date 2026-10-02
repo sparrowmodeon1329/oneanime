@@ -7,6 +7,7 @@ interface Episode {
   title: string;
   duration: string;
   streamUrl: string;
+  embedUrl: string;
 }
 
 interface Anime {
@@ -34,13 +35,15 @@ const animeList: Anime[] = [
         id: 1,
         title: 'Episode 1: Asta and Yuno (தமிழ்)',
         duration: '23m',
-        streamUrl: 'https://drive.google.com/file/d/19Hq3M9_Iy7EJ3aIUGn3loTjpK6ZqXNpK/preview',
+        streamUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4', // Mobile touch-friendly direct stream fallback for testing
+        embedUrl: 'https://drive.google.com/file/d/19Hq3M9_Iy7EJ3aIUGn3loTjpK6ZqXNpK/preview',
       },
       {
         id: 2,
         title: 'Episode 2: A Boys Vow',
         duration: '23m',
         streamUrl: '',
+        embedUrl: '',
       },
     ],
   },
@@ -58,6 +61,7 @@ const animeList: Anime[] = [
         title: 'Episode 1: Ryomen Sukuna',
         duration: '24m',
         streamUrl: '',
+        embedUrl: '',
       },
     ],
   },
@@ -73,11 +77,11 @@ export default function Home() {
   };
 
   return (
-    <main className="min-h-screen bg-neutral-950 text-neutral-100 flex flex-col">
+    <main className="min-h-screen bg-neutral-950 text-neutral-100 flex flex-col selection:bg-amber-500 selection:text-neutral-950">
       {/* Top Navigation */}
-      <header className="sticky top-0 z-50 flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 bg-neutral-900/90 backdrop-blur-md border-b border-neutral-800">
+      <header className="sticky top-0 z-50 flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 bg-neutral-900/90 backdrop-blur-md border-b border-neutral-800 shadow-lg">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-500 to-rose-600 flex items-center justify-center font-black text-xl shadow-lg shadow-amber-500/20">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-500 to-rose-600 flex items-center justify-center font-black text-xl shadow-lg shadow-amber-500/20 text-white">
             OA
           </div>
           <div>
@@ -85,7 +89,8 @@ export default function Home() {
             <p className="text-xs text-neutral-400">Tamil Anime Streaming Hub</p>
           </div>
         </div>
-        <div className="px-3 py-1 text-xs font-semibold uppercase tracking-wider rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
+        <div className="px-3 py-1 text-xs font-semibold uppercase tracking-wider rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 flex items-center gap-1.5">
+          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
           Live PWA
         </div>
       </header>
@@ -93,15 +98,31 @@ export default function Home() {
       <div className="flex-1 max-w-7xl w-full mx-auto p-3 sm:p-6 grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
         {/* Main Video Player & Details */}
         <section className="lg:col-span-2 flex flex-col gap-4">
-          <div className="relative w-full aspect-video rounded-2xl overflow-hidden bg-black border border-neutral-800 shadow-2xl flex items-center justify-center">
-            {currentEpisode.streamUrl ? (
-              <iframe
-                key={currentEpisode.streamUrl}
-                src={currentEpisode.streamUrl}
-                className="absolute inset-0 w-full h-full border-0"
-                allow="autoplay; fullscreen"
-                allowFullScreen
-              />
+          <div className="relative w-full aspect-video rounded-2xl overflow-hidden bg-black border border-neutral-800 shadow-2xl flex items-center justify-center touch-manipulation">
+            {currentEpisode.streamUrl || currentEpisode.embedUrl ? (
+              <div className="absolute inset-0 w-full h-full">
+                {/* Mobile & Touch Friendly Native Video or Optimized Embed */}
+                {currentEpisode.streamUrl ? (
+                  <video
+                    key={currentEpisode.streamUrl}
+                    controls
+                    playsInline
+                    preload="metadata"
+                    className="w-full h-full object-contain bg-black"
+                    src={currentEpisode.streamUrl}
+                  >
+                    Your browser does not support HTML5 video.
+                  </video>
+                ) : (
+                  <iframe
+                    key={currentEpisode.embedUrl}
+                    src={currentEpisode.embedUrl}
+                    className="w-full h-full border-0 pointer-events-auto"
+                    allow="autoplay; fullscreen; picture-in-picture"
+                    allowFullScreen
+                  />
+                )}
+              </div>
             ) : (
               <div className="w-full h-full flex flex-col items-center justify-center text-center p-6 text-neutral-500">
                 <span className="text-4xl mb-2">🎬</span>
@@ -111,20 +132,22 @@ export default function Home() {
             )}
           </div>
 
-          <div className="bg-neutral-900/60 rounded-2xl p-4 sm:p-5 border border-neutral-800 flex flex-col gap-3">
+          <div className="bg-neutral-900/60 rounded-2xl p-4 sm:p-5 border border-neutral-800 flex flex-col gap-3 shadow-lg">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <div>
-                <span className="text-xs font-semibold px-2 py-0.5 rounded bg-rose-500/20 text-rose-400 border border-rose-500/30 uppercase mr-2">
+                <span className="text-xs font-semibold px-2.5 py-1 rounded bg-rose-500/20 text-rose-400 border border-rose-500/30 uppercase mr-2">
                   Now Playing
                 </span>
-                <span className="text-xs font-semibold px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                <span className="text-xs font-semibold px-2.5 py-1 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30">
                   {selectedAnime.title}
                 </span>
               </div>
-              <span className="text-xs font-medium text-neutral-400">Rating: ⭐ {selectedAnime.rating}</span>
+              <span className="text-xs font-medium text-neutral-400 bg-neutral-950 px-2.5 py-1 rounded-lg border border-neutral-800">
+                Rating: ⭐ {selectedAnime.rating}
+              </span>
             </div>
 
-            <h2 className="text-base sm:text-xl font-bold text-white">
+            <h2 className="text-base sm:text-xl font-bold text-white tracking-wide">
               {currentEpisode.title}
             </h2>
 
@@ -145,12 +168,14 @@ export default function Home() {
         {/* Sidebar: Episodes & Anime Selector */}
         <aside className="flex flex-col gap-6">
           {/* Episode List */}
-          <div className="bg-neutral-900/60 rounded-2xl p-4 border border-neutral-800">
+          <div className="bg-neutral-900/60 rounded-2xl p-4 border border-neutral-800 shadow-lg">
             <h3 className="font-bold text-neutral-200 text-base mb-3 flex items-center justify-between">
               <span>Episodes</span>
-              <span className="text-xs font-normal text-neutral-400">{selectedAnime.episodes.length} Available</span>
+              <span className="text-xs font-normal text-neutral-400 bg-neutral-950 px-2 py-0.5 rounded border border-neutral-800">
+                {selectedAnime.episodes.length} Available
+              </span>
             </h3>
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-2 max-h-[300px] overflow-y-auto pr-1">
               {selectedAnime.episodes.map((ep) => {
                 const isActive = ep.id === currentEpisode.id;
                 return (
@@ -159,7 +184,7 @@ export default function Home() {
                     onClick={() => setCurrentEpisode(ep)}
                     className={`w-full text-left p-3 rounded-xl transition flex items-center justify-between border ${
                       isActive
-                        ? 'bg-amber-500/10 border-amber-500/40 text-amber-300'
+                        ? 'bg-amber-500/10 border-amber-500/40 text-amber-300 shadow-sm'
                         : 'bg-neutral-950/60 border-neutral-800/80 text-neutral-300 hover:bg-neutral-800/60'
                     }`}
                   >
@@ -179,7 +204,7 @@ export default function Home() {
           </div>
 
           {/* Anime Switcher */}
-          <div className="bg-neutral-900/60 rounded-2xl p-4 border border-neutral-800">
+          <div className="bg-neutral-900/60 rounded-2xl p-4 border border-neutral-800 shadow-lg">
             <h3 className="font-bold text-neutral-200 text-base mb-3">All Anime Series</h3>
             <div className="flex flex-col gap-3">
               {animeList.map((anime) => {
@@ -188,9 +213,9 @@ export default function Home() {
                   <button
                     key={anime.id}
                     onClick={() => handleSelectAnime(anime)}
-                    className={`w-full p-2 rounded-xl transition flex items-center gap-3 border text-left ${
+                    className={`w-full p-2.5 rounded-xl transition flex items-center gap-3 border text-left ${
                       isCurrent
-                        ? 'bg-rose-500/10 border-rose-500/40 text-white'
+                        ? 'bg-rose-500/10 border-rose-500/40 text-white shadow-sm'
                         : 'bg-neutral-950/50 border-neutral-800 text-neutral-400 hover:bg-neutral-800/50'
                     }`}
                   >
@@ -200,7 +225,7 @@ export default function Home() {
                     <div className="flex flex-col overflow-hidden">
                       <span className="text-sm font-semibold truncate text-neutral-200">{anime.title}</span>
                       <span className="text-xs text-neutral-500">{anime.originalTitle}</span>
-                      <span className="text-xs text-amber-400 mt-1">⭐ {anime.rating}</span>
+                      <span className="text-xs text-amber-400 mt-1 font-medium">⭐ {anime.rating}</span>
                     </div>
                   </button>
                 );
