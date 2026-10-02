@@ -6,7 +6,7 @@ interface Episode {
   id: number;
   title: string;
   duration: string;
-  youtubeId: string;
+  streamUrl: string;
 }
 
 interface Anime {
@@ -34,13 +34,14 @@ const animeList: Anime[] = [
         id: 1,
         title: 'Episode 1: Asta and Yuno (தமிழ்)',
         duration: '23m',
-        youtubeId: 'dQw4w9WgXcQ', // Replace this with your actual YouTube Video ID for Episode 1
+        // Intha edathula antha Archive.org direct download link-ah podu macha (e.g. https://archive.org/download/black-clover-s-1-ep-01/filename.mp4)
+        streamUrl: 'https://archive.org/download/black-clover-s-1-ep-01/black-clover-s-1-ep-01.mp4',
       },
       {
         id: 2,
         title: 'Episode 2: A Boys Vow',
         duration: '23m',
-        youtubeId: 'dQw4w9WgXcQ', // Replace this with your actual YouTube Video ID for Episode 2
+        streamUrl: '',
       },
     ],
   },
@@ -57,7 +58,7 @@ const animeList: Anime[] = [
         id: 1,
         title: 'Episode 1: Ryomen Sukuna',
         duration: '24m',
-        youtubeId: 'dQw4w9WgXcQ',
+        streamUrl: '',
       },
     ],
   },
@@ -95,19 +96,22 @@ export default function Home() {
         {/* Main Video Player & Details */}
         <section className="lg:col-span-2 flex flex-col gap-4">
           <div className="relative w-full aspect-video rounded-2xl overflow-hidden bg-black border border-neutral-800 shadow-2xl flex items-center justify-center">
-            {currentEpisode.youtubeId ? (
-              <iframe
-                key={currentEpisode.youtubeId}
-                src={`https://www.youtube-nocookie.com/embed/${currentEpisode.youtubeId}?autoplay=1&modestbranding=1&rel=0`}
-                className="absolute inset-0 w-full h-full border-0"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                allowFullScreen
-              />
+            {currentEpisode.streamUrl ? (
+              <video
+                key={currentEpisode.streamUrl}
+                controls
+                playsInline
+                preload="metadata"
+                className="w-full h-full object-contain bg-black"
+                src={currentEpisode.streamUrl}
+              >
+                Your browser does not support HTML5 video.
+              </video>
             ) : (
               <div className="w-full h-full flex flex-col items-center justify-center text-center p-6 text-neutral-500">
                 <span className="text-4xl mb-2">🎬</span>
-                <p className="font-medium text-neutral-300">No active YouTube video ID</p>
-                <p className="text-sm">Video ID add pannina play aagum</p>
+                <p className="font-medium text-neutral-300">No active stream URL</p>
+                <p className="text-sm">Video link upload pannina play aagum</p>
               </div>
             )}
           </div>
