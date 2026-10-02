@@ -34,7 +34,7 @@ const animeList: Anime[] = [
         id: 1,
         title: 'Episode 1: Asta and Yuno (தமிழ்)',
         duration: '23m',
-        streamUrl: 'https://drive.google.com/uc?export=download&id=19Hq3M9_Iy7EJ3aIUGn3loTjpK6ZqXNpK',
+        streamUrl: 'https://drive.google.com/file/d/19Hq3M9_Iy7EJ3aIUGn3loTjpK6ZqXNpK/preview',
       },
       {
         id: 2,
@@ -95,16 +95,13 @@ export default function Home() {
         <section className="lg:col-span-2 flex flex-col gap-4">
           <div className="relative aspect-video w-full rounded-2xl overflow-hidden bg-black border border-neutral-800 shadow-2xl">
             {currentEpisode.streamUrl ? (
-              <video
+              <iframe
                 key={currentEpisode.streamUrl}
-                controls
-                autoPlay
-                playsInline
-                className="w-full h-full object-contain"
                 src={currentEpisode.streamUrl}
-              >
-                Your browser does not support HTML5 video.
-              </video>
+                className="w-full h-full border-0"
+                allow="autoplay; fullscreen"
+                allowFullScreen
+              />
             ) : (
               <div className="w-full h-full flex flex-col items-center justify-center text-center p-6 text-neutral-500">
                 <span className="text-4xl mb-2">🎬</span>
