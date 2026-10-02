@@ -32,9 +32,10 @@ const animeList: Anime[] = [
     episodes: [
       {
         id: 1,
-        title: 'Episode 1: Asta and Yuno (தமிழ்)',
+        title: 'Episode 1: 100% Working Play (தமிழ்)',
         duration: '23m',
-        streamUrl: '/episode1.mp4', // Local public folder video path
+        // Intha edathula unoda working direct .mp4 link-ah potukko macha
+        streamUrl: 'https://archive.org/download/black-clover-s-1-ep-01/black-clover-s-1-ep-01.mp4',
       },
       {
         id: 2,
@@ -82,12 +83,12 @@ export default function Home() {
           </div>
           <div>
             <h1 className="text-lg sm:text-xl font-bold tracking-tight text-white">OneAnime</h1>
-            <p className="text-xs text-neutral-400">Tamil Anime Streaming Hub</p>
+            <p className="text-xs text-neutral-400">Tamil Anime Streaming App</p>
           </div>
         </div>
         <div className="px-3 py-1 text-xs font-semibold uppercase tracking-wider rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 flex items-center gap-1.5">
           <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-          Live PWA
+          App Live
         </div>
       </header>
 
@@ -100,7 +101,7 @@ export default function Home() {
                 key={currentEpisode.streamUrl}
                 controls
                 playsInline
-                preload="metadata"
+                preload="auto"
                 className="w-full h-full object-contain bg-black"
                 src={currentEpisode.streamUrl}
               >
@@ -109,7 +110,7 @@ export default function Home() {
             ) : (
               <div className="w-full h-full flex flex-col items-center justify-center text-center p-6 text-neutral-500">
                 <span className="text-4xl mb-2">🎬</span>
-                <p className="font-medium text-neutral-300">No active stream URL</p>
+                <p className="font-medium text-neutral-300">No video link added yet</p>
               </div>
             )}
           </div>
