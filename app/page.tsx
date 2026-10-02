@@ -32,10 +32,11 @@ const animeList: Anime[] = [
     episodes: [
       {
         id: 1,
-        title: 'Episode 1: 100% Working Play (தமிழ்)',
+        title: 'Episode 1: Asta and Yuno (தமிழ்)',
         duration: '23m',
-        // Intha edathula unoda working direct .mp4 link-ah potukko macha
-        streamUrl: 'https://archive.org/download/black-clover-s-1-ep-01/black-clover-s-1-ep-01.mp4',
+        // Intha edathula unoda Google Drive embed/preview link-ah podu macha
+        // Format: https://drive.google.com/file/d/YOUR_FILE_ID/preview
+        streamUrl: 'https://drive.google.com/file/d/19Hq3M9_Iy7EJ3aIUGn3loTjpK6ZqXNpK/view?usp=drivesdk',
       },
       {
         id: 2,
@@ -97,20 +98,17 @@ export default function Home() {
         <section className="lg:col-span-2 flex flex-col gap-4">
           <div className="relative w-full aspect-video rounded-2xl overflow-hidden bg-black border border-neutral-800 shadow-2xl flex items-center justify-center">
             {currentEpisode.streamUrl ? (
-              <video
+              <iframe
                 key={currentEpisode.streamUrl}
-                controls
-                playsInline
-                preload="auto"
-                className="w-full h-full object-contain bg-black"
                 src={currentEpisode.streamUrl}
-              >
-                Your browser does not support HTML5 video.
-              </video>
+                className="absolute inset-0 w-full h-full border-0"
+                allow="autoplay; fullscreen; picture-in-picture"
+                allowFullScreen
+              />
             ) : (
               <div className="w-full h-full flex flex-col items-center justify-center text-center p-6 text-neutral-500">
                 <span className="text-4xl mb-2">🎬</span>
-                <p className="font-medium text-neutral-300">No video link added yet</p>
+                <p className="font-medium text-neutral-300">No active stream URL</p>
               </div>
             )}
           </div>
